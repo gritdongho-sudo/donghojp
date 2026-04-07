@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#fafaf7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>일본어 데일리 — 매일 조금씩</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --ink-soft: #4a4a6a;
+    --ink-muted: #8888aa;
+    --paper: #fafaf7;
+    --paper-2: #f0f0ea;
+    --paper-3: #e4e4dc;
+    --accent: #c84b31;
+    --accent-soft: #f5ddd8;
+    --blue: #2563a8;
+    --blue-soft: #ddeaf8;
+    --green: #1a7a4a;
+    --green-soft: #d4f0e2;
+    --gold: #a06820;
+    --gold-soft: #fdefd8;
+    --radius: 16px;
+    --radius-sm: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    font-size: 16px;
+    line-height: 1.6;
+    word-break: keep-all;
+  }
+
+  .jp { font-family: 'Noto Sans JP', sans-serif; }
+  .mono { font-family: 'DM Mono', monospace; }
+
+  /* ─── Layout ─── */
+  .shell { max-width: 600px; margin: 0 auto; padding: 0 16px 80px; }
+
+  /* ─── Header ─── */
+  header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 24px 0 20px;
+    border-bottom: 1.5px solid var(--paper-3);
+    margin-bottom: 24px;
+    text-align: center;
+  }
+  .logo-jp {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+  }
+  .logo-sub { font-size: 14px; color: var(--ink-muted); display: block; margin-top: 4px; }
+  .header-info { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; }
+  .streak-badge {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--gold-soft); color: var(--gold);
+    font-size: 14px; font-weight: 700;
+    padding: 6px 14px; border-radius: 20px;
+  }
+  .date-text { font-size: 14px; color: var(--ink-muted); font-family: 'DM Mono', monospace; }
+
+  /* ─── Stats row ─── */
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 24px; }
+  .stat-card {
+    background: var(--paper-2);
+    border-radius: var(--radius-sm);
+    padding: 16px 12px;
+    text-align: center;
+  }
+  .stat-n { font-size: 26px; font-weight: 700; color: var(--ink); font-family: 'DM Mono', monospace; line-height: 1.2; }
+  .stat-l { font-size: 12px; color: var(--ink-muted); margin-top: 4px; }
+
+  /* ─── Nav tabs ─── */
+  .nav-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 24px;
+    background: var(--paper-2);
+    padding: 6px;
+    border-radius: var(--radius);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav-tabs::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    flex: 1 0 auto;
+    padding: 12px 16px;
+    border: none;
+    background: transparent;
+    color: var(--ink-muted);
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Noto Sans KR', sans-serif;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .tab-btn.active { background: white; color: var(--ink); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+
+  /* ─── Notice ─── */
+  .hint-notice {
+    text-align: center; font-size: 13px; color: var(--ink-muted);
+    margin-bottom: 16px; background: var(--paper-2); padding: 8px; border-radius: var(--radius-sm);
+  }
+
+  /* ─── Generate button ─── */
+  .gen-btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; padding: 16px;
+    background: var(--accent); color: white;
+    border: none; border-radius: var(--radius-sm);
+    font-size: 16px; font-weight: 700; font-family: 'Noto Sans KR', sans-serif;
+    cursor: pointer; transition: all 0.2s; margin-bottom: 24px;
+    box-shadow: 0 4px 12px rgba(200, 75, 49, 0.2);
+  }
+  .gen-btn:active { transform: scale(0.98); }
+  .gen-btn:disabled { background: var(--paper-3); color: var(--ink-muted); box-shadow: none; }
+  
+  /* ─── Cards & Hide Text ─── */
+  .card {
+    background: white; border: 1px solid var(--paper-3);
+    border-radius: var(--radius); padding: 24px 20px;
+    margin-bottom: 16px; text-align: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+  }
+  .card-label {
+    font-size: 12px; font-weight: 700; color: var(--ink-muted);
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px;
+  }
+
+  /* 클릭 시 보이는 숨김 텍스트 (발음/해석용) */
+  .hide-text {
+    background-color: var(--paper-3);
+    color: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 2px 6px;
+    user-select: none;
+    display: inline-block;
+  }
+  .hide-text.active {
+    background-color: var(--blue-soft);
+    color: var(--blue);
+  }
+
+  /* ─── Typography & Heroes ─── */
+  .hero-char {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 80px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+  .hero-reading { font-size: 18px; margin-bottom: 8px; font-family: 'Noto Sans JP', sans-serif; }
+  .hero-meaning { font-size: 22px; font-weight: 700; color: var(--ink); margin-bottom: 16px; }
+
+  .pronunciation { font-size: 16px; color: var(--accent); font-weight: 700; margin: 4px 0 8px; }
+  
+  .tag {
+    display: inline-block; font-size: 12px; padding: 4px 12px;
+    border-radius: 20px; font-weight: 700; margin: 0 4px;
+  }
+  .tag-blue { background: var(--blue-soft); color: var(--blue); }
+  .tag-green { background: var(--green-soft); color: var(--green); }
+
+  /* ─── Specific Sections ─── */
+  .sentence-jp { font-size: 32px; font-weight: 700; line-height: 1.4; margin-bottom: 16px; }
+  
+  .grid-2col {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; text-align: left;
+  }
+  .grid-item {
+    background: var(--paper-2); padding: 12px; border-radius: var(--radius-sm);
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+  }
+  
+  .point-box {
+    background: var(--blue-soft); border-radius: var(--radius-sm);
+    padding: 16px; font-size: 15px; color: var(--ink); line-height: 1.6;
+    text-align: left;
+  }
+
+  .action-row { display: flex; gap: 12px; justify-content: center; margin-top: 16px; }
+  .sec-btn {
+    flex: 1; padding: 14px; border: 1.5px solid var(--paper-3); border-radius: var(--radius-sm);
+    background: white; color: var(--ink); font-size: 15px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .sec-btn:active { background: var(--paper-2); }
+
+  /* Dialogue */
+  .turn { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; text-align: left; }
+  .turn.right { align-items: flex-end; text-align: right; }
+  .bubble {
+    display: inline-block; max-width: 90%; border-radius: 16px; padding: 16px;
+    background: var(--paper-2); font-size: 16px; line-height: 1.5;
+  }
+  .bubble-a { background: var(--accent-soft); border-bottom-right-radius: 4px; }
+  .bubble-b { background: var(--blue-soft); border-bottom-left-radius: 4px; }
+  .bubble .bj { font-size: 20px; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
+
+  /* Quiz */
+  .quiz-q-text { font-size: 24px; font-weight: 700; margin-bottom: 24px; line-height: 1.4; }
+  .quiz-opts { display: flex; flex-direction: column; gap: 12px; }
+  .opt {
+    padding: 16px; border: 2px solid var(--paper-3); border-radius: var(--radius-sm);
+    background: white; color: var(--ink); font-size: 18px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .opt.correct { background: var(--green-soft); border-color: var(--green); color: var(--green); }
+  .opt.wrong { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+
+  .empty { padding: 80px 20px; color: var(--ink-muted); text-align: center; }
+  .empty-icon { font-size: 64px; margin-bottom: 16px; opacity: 0.5; }
+  
+  .section { display: none; animation: fadeIn 0.3s ease; }
+  .section.visible { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .skel {
+    background: linear-gradient(90deg, var(--paper-2) 25%, var(--paper-3) 50%, var(--paper-2) 75%);
+    background-size: 200% 100%;
+    animation: skel-anim 1.2s infinite;
+    border-radius: var(--radius-sm);
+  }
+  @keyframes skel-anim { to { background-position: -200% 0; } }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- Header -->
+  <header>
+    <div class="logo">
+      <span class="logo-jp">日語デイリー</span>
+      <span class="logo-sub">매일 조금씩 성장하는 일본어</span>
+    </div>
+    <div class="header-info">
+      <span class="streak-badge"><span class="flame">🔥</span><span id="streak-num">0</span>일 연속</span>
+      <span class="date-text" id="today-date"></span>
+    </div>
+  </header>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat-card"><div class="stat-n" id="stat-verbs">0</div><div class="stat-l">단어/동사</div></div>
+    <div class="stat-card"><div class="stat-n" id="stat-kanji">0</div><div class="stat-l">가타카나/한자</div></div>
+    <div class="stat-card"><div class="stat-n" id="stat-quiz">—</div><div class="stat-l">퀴즈 정답률</div></div>
+  </div>
+
+  <!-- Nav -->
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('katakana', this)">가타카나</button>
+    <button class="tab-btn" onclick="switchTab('verb', this)">기초 동사</button>
+    <button class="tab-btn" onclick="switchTab('sentence', this)">한 문장</button>
+    <button class="tab-btn" onclick="switchTab('kanji', this)">기초 한자</button>
+    <button class="tab-btn" onclick="switchTab('dialogue', this)">회화</button>
+    <button class="tab-btn" onclick="switchTab('quiz', this)">퀴즈</button>
+  </div>
+
+  <div class="hint-notice">💡 회색 박스를 터치하면 발음과 해석이 보입니다.</div>
+
+  <!-- Sections -->
+  <div id="sec-katakana" class="section visible">
+    <button class="gen-btn" id="btn-katakana" onclick="generate('katakana')">✦ 오늘의 가타카나 뽑기</button>
+    <div id="content-katakana"><div class="empty"><div class="empty-icon">ア</div>버튼을 눌러 시작하세요</div></div>
+  </div>
+
+  <div id="sec-verb" class="section">
+    <button class="gen-btn" id="btn-verb" onclick="generate('verb')">✦ 오늘의 동사 뽑기</button>
+    <div id="content-verb"><div class="empty"><div class="empty-icon">動</div>버튼을 눌러 시작하세요</div></div>
+  </div>
+
+  <div id="sec-sentence" class="section">
+    <button class="gen-btn" id="btn-sentence" onclick="generate('sentence')">✦ 오늘의 문장 뽑기</button>
+    <div id="content-sentence"><div class="empty"><div class="empty-icon">文</div>버튼을 눌러 시작하세요</div></div>
+  </div>
+
+  <div id="sec-kanji" class="section">
+    <button class="gen-btn" id="btn-kanji" onclick="generate('kanji')">✦ 오늘의 한자 뽑기</button>
+    <div id="content-kanji"><div class="empty"><div class="empty-icon">字</div>버튼을 눌러 시작하세요</div></div>
+  </div>
+
+  <div id="sec-dialogue" class="section">
+    <button class="gen-btn" id="btn-dialogue" onclick="generate('dialogue')">✦ 오늘의 대화 뽑기</button>
+    <div id="content-dialogue"><div class="empty"><div class="empty-icon">話</div>버튼을 눌러 시작하세요</div></div>
+  </div>
+
+  <div id="sec-quiz" class="section">
+    <div id="content-quiz"><div class="empty"><div class="empty-icon">?</div>콘텐츠를 먼저 학습해주세요</div></div>
+  </div>
+
+</div>
+
+<script>
+// ── PWA Setup (웹앱 설치 지원) ───────────────────────
+const manifest = {
+  name: "일본어 데일리",
+  short_name: "日語데일리",
+  start_url: ".",
+  display: "standalone",
+  background_color: "#fafaf7",
+  theme_color: "#fafaf7",
+  icons: [{
+    src: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2ZhZmFmNyIvPjx0ZXh0IHk9IjUwJSIgeD0iNTAlIiBmb250LXNpemU9Ijc1IiBmaWxsPSIjYzg0YjMxIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZGlyZWN0aW9uPSJydGwiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIj7ml6U8L3RleHQ+PC9zdmc+",
+    sizes: "192x192",
+    type: "image/svg+xml"
+  }]
+};
+const manifestDataUri = "data:application/json;charset=utf-8," + encodeURIComponent(JSON.stringify(manifest));
+document.head.insertAdjacentHTML('beforeend', `<link rel="manifest" href="${manifestDataUri}">`);
+// 단일 파일(미리보기) 환경의 보안 정책으로 인해 blob URL 기반의 ServiceWorker 등록 코드는 제거했습니다.
+// 매니페스트(manifest)만으로도 모바일 기기에서 홈 화면 추가 기능은 동작합니다.
+// ───────────────────────────────────────────────────────
+
+// ── API Key ─────────────────────────────────────────────
+const apiKey = ""; // 런타임 자동 주입
+// ───────────────────────────────────────────────────────
+
+const store = {
+  katakana: null, verb: null, sentence: null, kanji: null, dialogue: null,
+  stats: { verbs: 0, kanji: 0, quizTotal: 0, quizCorrect: 0, streak: 0 },
+  quizState: { questions: [], index: 0, answered: false }
+};
+
+// Load state
+try { const saved = localStorage.getItem('jp-daily-v2'); if (saved) Object.assign(store, JSON.parse(saved)); } catch(e) {}
+function save() { try { localStorage.setItem('jp-daily-v2', JSON.stringify(store)); } catch(e) {} }
+
+// Init UI
+document.getElementById('today-date').textContent = new Date().toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' });
+updateStats();
+
+function switchTab(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('visible'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('visible');
+  btn.classList.add('active');
+  if (id === 'quiz') renderQuizSection();
+}
+
+function updateStats() {
+  document.getElementById('stat-verbs').textContent = store.stats.verbs;
+  document.getElementById('stat-kanji').textContent = store.stats.kanji;
+  document.getElementById('stat-quiz').textContent = store.stats.quizTotal > 0 ? Math.round(store.stats.quizCorrect / store.stats.quizTotal * 100) + '%' : '—';
+  document.getElementById('streak-num').textContent = store.stats.streak;
+}
+
+// ── API Call ───────────────────────────────────────────
+async function callGemini(systemPrompt, userPrompt) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+  const payload = {
+    systemInstruction: { parts: [{ text: systemPrompt }] },
+    contents: [{ parts: [{ text: userPrompt }] }],
+    generationConfig: { responseMimeType: "application/json", maxOutputTokens: 800 }
+  };
+  const delays = [500, 1500]; // 빠른 재시도
+  
+  for (let attempt = 0; attempt <= delays.length; attempt++) {
+    try {
+      const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        if (response.status >= 400 && response.status < 500 && response.status !== 429) throw new Error(err.error?.message || `HTTP ${response.status}`);
+        throw new Error('Retry');
+      }
+      const text = (await response.json()).candidates?.[0]?.content?.parts?.[0]?.text;
+      return JSON.parse(text.replace(/```json|```/g, '').trim());
+    } catch (e) {
+      if (e.message !== 'Retry' && attempt === delays.length) alert("오류 발생: " + e.message);
+      if (attempt < delays.length) await new Promise(r => setTimeout(r, delays[attempt]));
+    }
+  }
+}
+
+// ── Prompts ───────────────────────────────────────────
+const SYSTEM = "당신은 일본어 초보자 전문 강사입니다. 반드시 순수 JSON만 매우 간결하게 반환하세요.";
+
+const PROMPTS = {
+  katakana: (p) => `오늘 배울 가타카나 1글자를 골라주세요. ${p?`이전: ${p} 제외.`:''}
+{"katakana":"글자","romaji":"발음","pronunciation":"한국어 발음(예: 아, 카)","tip":"모양 외우는 짧은 팁","words":[{"word":"단어","pronunciation":"한국어 발음","meaning":"뜻"}]}`,
+  verb: (p) => `기초 동사 1개를 골라주세요. ${p?`이전: ${p} 제외.`:''}
+{"verb":"동사","reading":"읽기","pronunciation":"한국어 발음","meaning":"뜻","type":"그룹","conjugations":{"ます형":"...","て형":"...","ない형":"...","た형":"..."},"example":{"jp":"짧은 예문","pronunciation":"한국어 발음","kr":"뜻"}}`,
+  sentence: (p) => `초보자용 일상 문장 1개. ${p?`이전: ${p} 제외.`:''}
+{"jp":"문장","reading":"읽기","pronunciation":"한국어 발음","kr":"번역","grammar_point":"짧은 문법 설명"}`,
+  kanji: (p) => `JLPT N5 기초 한자 1개. ${p?`이전: ${p} 제외.`:''}
+{"kanji":"한자","onyomi":"음독","kunyomi":"훈독","pronunciation":"한국어 발음(음/훈독 종합)","meaning":"뜻","words":[{"word":"단어","reading":"읽기","pronunciation":"한국어 발음","meaning":"뜻"}]}`,
+  dialogue: (p) => `초보자용 2-3턴 짧은 대화.
+{"situation":"상황","lines":[{"speaker":"A/B","jp":"문장","reading":"읽기","pronunciation":"한국어 발음","kr":"뜻"}]}`
+};
+
+// ── Generate ──────────────────────────────────────────
+async function generate(type) {
+  const btn = document.getElementById('btn-' + type);
+  const container = document.getElementById('content-' + type);
+  btn.disabled = true; btn.textContent = '생성 중...';
+  container.innerHTML = loadingSkeleton();
+  
+  const prevHint = store[type] ? (store[type].katakana || store[type].verb || store[type].jp || store[type].kanji || store[type].situation) : null;
+  const data = await callGemini(SYSTEM, PROMPTS[type](prevHint));
+  
+  if(data) {
+    store[type] = data;
+    if (type === 'verb') store.stats.verbs++;
+    if (type === 'kanji' || type === 'katakana') store.stats.kanji++;
+    store.stats.streak = Math.max(store.stats.streak, 1);
+    save(); updateStats();
+    container.innerHTML = renderContent(type, data);
+  } else {
+    container.innerHTML = `<div class="empty">오류가 발생했습니다. 다시 시도해주세요.</div>`;
+  }
+  btn.disabled = false; btn.textContent = '✦ 다른 내용 뽑기';
+}
+
+function loadingSkeleton() {
+  return `<div class="card">
+    <div class="skel" style="height:16px;width:80px;margin:0 auto 16px;"></div>
+    <div class="skel" style="height:80px;width:80px;margin:0 auto 12px;border-radius:12px;"></div>
+    <div class="skel" style="height:20px;width:120px;margin:0 auto 16px;"></div>
+    <div class="skel" style="height:40px;width:100%;"></div>
+  </div>
+  <div class="card">
+    <div class="skel" style="height:100px;width:100%;"></div>
+  </div>`;
+}
+
+function makeHideable(text, isLarge = false) {
+  if(!text) return '';
+  return `<span class="hide-text ${isLarge ? 'jp' : ''}" onclick="this.classList.toggle('active')">${text}</span>`;
+}
+
+// ── Renderers ─────────────────────────────────────────
+function renderContent(type, d) {
+  if(type === 'katakana') return `
+    <div class="card">
+      <div class="card-label">오늘의 가타카나</div>
+      <div class="hero-char">${d.katakana}</div>
+      <div class="hero-reading">${makeHideable(d.romaji, true)}</div>
+      <div class="pronunciation">[ ${d.pronunciation} ]</div>
+      <div class="point-box" style="text-align:center; margin-top:16px;">💡 ${d.tip}</div>
+    </div>
+    <div class="card">
+      <div class="card-label">활용 단어</div>
+      <div class="grid-2col">
+        ${(d.words||[]).slice(0,2).map(w => `<div class="grid-item">
+          <div class="jp" style="font-size:24px;font-weight:700;">${w.word}</div>
+          <div class="pronunciation">[ ${w.pronunciation} ]</div>
+          <div style="margin-top:4px;">${makeHideable(w.meaning)}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+    <div class="action-row"><button class="sec-btn" onclick="speak('${d.katakana}')">🔊 발음 듣기</button></div>`;
+
+  if(type === 'verb') return `
+    <div class="card">
+      <div class="card-label">오늘의 동사</div>
+      <div class="hero-char">${d.verb}</div>
+      <div class="hero-reading">${makeHideable(d.reading, true)}</div>
+      <div class="pronunciation">[ ${d.pronunciation} ]</div>
+      <div class="hero-meaning">${makeHideable(d.meaning)}</div>
+      <span class="tag tag-blue">${d.type}</span>
+    </div>
+    <div class="card">
+      <div class="card-label">활용표</div>
+      <div class="grid-2col">
+        ${Object.entries(d.conjugations||{}).map(([k,v]) => `<div class="grid-item"><div style="font-size:12px;color:var(--ink-muted);">${k}</div><div class="jp" style="font-size:18px;font-weight:700;margin-top:4px;">${makeHideable(v, true)}</div></div>`).join('')}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">예문</div>
+      <div class="sentence-jp">${d.example.jp}</div>
+      <div class="pronunciation">[ ${d.example.pronunciation} ]</div>
+      <div>${makeHideable(d.example.kr)}</div>
+    </div>
+    <div class="action-row"><button class="sec-btn" onclick="speak('${d.verb}')">🔊 단어 듣기</button><button class="sec-btn" onclick="speak('${d.example.jp}')">🔊 예문 듣기</button></div>`;
+
+  if(type === 'sentence') return `
+    <div class="card">
+      <div class="card-label">오늘의 문장</div>
+      <div class="sentence-jp">${d.jp}</div>
+      <div style="margin-bottom:4px;">${makeHideable(d.reading, true)}</div>
+      <div class="pronunciation" style="margin-bottom:12px;">[ ${d.pronunciation} ]</div>
+      <div style="font-size:18px;font-weight:700;">${makeHideable(d.kr)}</div>
+    </div>
+    <div class="card">
+      <div class="card-label">문법 포인트</div>
+      <div class="point-box">${d.grammar_point}</div>
+    </div>
+    <div class="action-row"><button class="sec-btn" onclick="speak('${d.jp}')">🔊 발음 듣기</button></div>`;
+
+  if(type === 'kanji') return `
+    <div class="card">
+      <div class="card-label">오늘의 한자</div>
+      <div class="hero-char">${d.kanji}</div>
+      <div class="pronunciation" style="margin-bottom:8px;">[ ${d.pronunciation} ]</div>
+      <div class="hero-meaning">${makeHideable(d.meaning)}</div>
+      <div style="display:flex; justify-content:center; gap:16px; margin-top:12px;">
+        <div><small style="color:var(--ink-muted);display:block;">음독</small>${makeHideable(d.onyomi, true)}</div>
+        <div><small style="color:var(--ink-muted);display:block;">훈독</small>${makeHideable(d.kunyomi, true)}</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">관련 단어</div>
+      <div class="grid-2col">
+        ${(d.words||[]).slice(0,4).map(w => `<div class="grid-item">
+          <div class="jp" style="font-size:22px;font-weight:700;">${w.word}</div>
+          <div style="font-size:12px; margin:4px 0;">${makeHideable(w.reading, true)}</div>
+          <div class="pronunciation" style="font-size:12px; margin-bottom:4px;">[ ${w.pronunciation} ]</div>
+          <div style="font-size:14px; font-weight:700;">${makeHideable(w.meaning)}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+    <div class="action-row"><button class="sec-btn" onclick="speak('${d.kanji}')">🔊 발음 듣기</button></div>`;
+
+  if(type === 'dialogue') return `
+    <div class="card">
+      <div class="card-label">상황: ${d.situation}</div>
+      ${(d.lines||[]).map(l => `
+        <div class="turn ${l.speaker==='B'?'right':''}">
+          <div class="bubble ${l.speaker==='B'?'bubble-b':'bubble-a'}">
+            <div class="bj">${l.jp}</div>
+            <div style="font-size:13px; margin-bottom:2px;">${makeHideable(l.reading, true)}</div>
+            <div class="pronunciation" style="font-size:13px; margin-bottom:6px;">[ ${l.pronunciation} ]</div>
+            <div style="font-size:14px; font-weight:700;">${makeHideable(l.kr)}</div>
+          </div>
+        </div>`).join('')}
+    </div>`;
+}
+
+// ── Quiz ──────────────────────────────────────────────
+function renderQuizSection() {
+  const container = document.getElementById('content-quiz');
+  if (!store.verb && !store.sentence && !store.kanji && !store.katakana) {
+    container.innerHTML = `<div class="empty"><div class="empty-icon">?</div>학습을 먼저 진행해주세요</div>`; return;
+  }
+  store.quizState.questions = buildQuestions(); store.quizState.index = 0; store.quizState.answered = false;
+  showQuestion(container);
+}
+
+function buildQuestions() {
+  const qs = [], d = store;
+  if(d.katakana) qs.push({ q:`가타카나 "${d.katakana.katakana}" 의 발음은?`, opts: shuffle([d.katakana.romaji, 'a', 'ka', 'shi']), ans: d.katakana.romaji });
+  if(d.verb) qs.push({ q:`"${d.verb.meaning}" 을(를) 뜻하는 동사는?`, opts: shuffle([d.verb.verb, 'する', 'くる', 'いく']), ans: d.verb.verb });
+  if(d.sentence) qs.push({ q:`다음 문장의 뜻은?\n${d.sentence.jp}`, opts: shuffle([d.sentence.kr, '안녕하세요', '감사합니다', '맛있습니다']), ans: d.sentence.kr });
+  if(d.kanji) qs.push({ q:`한자 "${d.kanji.kanji}" 의 뜻은?`, opts: shuffle([d.kanji.meaning, '하늘', '물', '불']), ans: d.kanji.meaning });
+  return shuffle(qs);
+}
+
+function shuffle(arr) { return [...new Set([...arr].sort(() => Math.random() - 0.5))].slice(0, 4); }
+
+function showQuestion(container) {
+  const q = store.quizState.questions[store.quizState.index % store.quizState.questions.length];
+  if(!q) return; store.quizState.answered = false;
+  container.innerHTML = `
+    <div class="card">
+      <div class="quiz-q-text jp">${q.q.replace(/\n/g, '<br>')}</div>
+      <div class="quiz-opts">
+        ${q.opts.map(o => `<button class="opt" onclick="answerQuiz(this, '${o}', '${q.ans}')">${o}</button>`).join('')}
+      </div>
+      <button class="sec-btn" id="btn-next" style="display:none; width:100%; margin-top:20px;" onclick="nextQuestion()">다음 문제 →</button>
+    </div>`;
+}
+
+function answerQuiz(btn, chosen, ans) {
+  if (store.quizState.answered) return;
+  store.quizState.answered = true; store.stats.quizTotal++;
+  if (chosen === ans) { store.stats.quizCorrect++; btn.classList.add('correct'); }
+  else { btn.classList.add('wrong'); document.querySelectorAll('.opt').forEach(b => { if(b.textContent===ans) b.classList.add('correct'); }); }
+  save(); updateStats();
+  document.getElementById('btn-next').style.display = 'block';
+}
+
+function nextQuestion() { store.quizState.index++; showQuestion(document.getElementById('content-quiz')); }
+
+function speak(text) {
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text); u.lang = 'ja-JP'; u.rate = 0.85;
+  window.speechSynthesis.speak(u);
+}
+
+// Restore UI
+['katakana','verb','sentence','kanji','dialogue'].forEach(t => {
+  if (store[t]) { document.getElementById('content-' + t).innerHTML = renderContent(t, store[t]); document.getElementById('btn-' + t).textContent = '✦ 다른 내용 뽑기'; }
+});
+</script>
+</body>
+</html>
