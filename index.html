@@ -57,6 +57,7 @@
     border-bottom: 1.5px solid var(--paper-3);
     margin-bottom: 24px;
     text-align: center;
+    position: relative;
   }
   .logo-jp {
     font-family: 'Noto Sans JP', sans-serif;
@@ -74,6 +75,25 @@
     padding: 6px 14px; border-radius: 20px;
   }
   .date-text { font-size: 14px; color: var(--ink-muted); font-family: 'DM Mono', monospace; }
+  
+  .settings-btn {
+    position: absolute; top: 16px; right: 0;
+    background: none; border: none; font-size: 24px;
+    cursor: pointer; padding: 8px; border-radius: 50%;
+  }
+
+  /* ─── Settings Panel ─── */
+  .settings-panel {
+    display: none; padding: 20px; background: var(--paper-2);
+    border-radius: var(--radius); margin-bottom: 24px;
+    border: 1px solid var(--paper-3);
+  }
+  .settings-panel.active { display: block; animation: fadeIn 0.2s ease; }
+  .api-input {
+    width: 100%; padding: 12px; border-radius: var(--radius-sm);
+    border: 1px solid var(--paper-3); margin-bottom: 12px;
+    font-size: 14px; font-family: monospace;
+  }
 
   /* ─── Stats row ─── */
   .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 24px; }
@@ -258,7 +278,24 @@
       <span class="streak-badge"><span class="flame">🔥</span><span id="streak-num">0</span>일 연속</span>
       <span class="date-text" id="today-date"></span>
     </div>
+    <button class="settings-btn" onclick="toggleSettings()">⚙️</button>
   </header>
+
+  <!-- Settings Panel -->
+  <div id="settings-panel" class="settings-panel">
+    <div style="font-weight:700; font-size:18px; margin-bottom:12px;">API 키 설정</div>
+    <p style="font-size:13px; color:var(--ink-muted); margin-bottom:12px;">
+      개인 구글 API 키를 입력해야 앱이 작동합니다. 기기에만 안전하게 저장됩니다.
+    </p>
+    <input type="password" id="api-key-input" class="api-input" placeholder="AIzaSy... (API 키를 붙여넣으세요)">
+    <div style="display:flex; gap:8px;">
+      <button class="sec-btn" onclick="saveApiKey()" style="background:var(--accent); color:white; border-color:var(--accent);">저장하기</button>
+      <button class="sec-btn" onclick="toggleSettings()">닫기</button>
+    </div>
+    <div style="margin-top:16px; text-align:center;">
+      <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--blue); font-size:14px; font-weight:700; text-decoration:underline;">🔑 무료 API 키 발급받기</a>
+    </div>
+  </div>
 
   <!-- Stats -->
   <div class="stats">
@@ -328,12 +365,24 @@ const manifest = {
 };
 const manifestDataUri = "data:application/json;charset=utf-8," + encodeURIComponent(JSON.stringify(manifest));
 document.head.insertAdjacentHTML('beforeend', `<link rel="manifest" href="${manifestDataUri}">`);
-// 단일 파일(미리보기) 환경의 보안 정책으로 인해 blob URL 기반의 ServiceWorker 등록 코드는 제거했습니다.
-// 매니페스트(manifest)만으로도 모바일 기기에서 홈 화면 추가 기능은 동작합니다.
 // ───────────────────────────────────────────────────────
 
-// ──  Key ─────────────────────────────────────────────
-const apiKey = "AIzaSyCTAd9JG_NOE1zDm72I5-bJ_dpH7fQBIyU"; // 런타임 자동 주입
+// ── User API Key Management ────────────────────────────
+let userApiKey = localStorage.getItem('jp-daily-apikey') || "";
+
+function toggleSettings() {
+  const panel = document.getElementById('settings-panel');
+  panel.classList.toggle('active');
+  document.getElementById('api-key-input').value = userApiKey;
+}
+
+function saveApiKey() {
+  const key = document.getElementById('api-key-input').value.trim();
+  userApiKey = key;
+  localStorage.setItem('jp-daily-apikey', key);
+  document.getElementById('settings-panel').classList.remove('active');
+  alert('API 키가 성공적으로 저장되었습니다!\n이제 생성을 시작해 보세요.');
+}
 // ───────────────────────────────────────────────────────
 
 const store = {
@@ -367,7 +416,10 @@ function updateStats() {
 
 // ── API Call ───────────────────────────────────────────
 async function callGemini(systemPrompt, userPrompt) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+  // 사용자가 입력한 API 키가 있다면 사용, 없다면 빈 문자열(Canvas 미리보기 환경 지원)
+  const activeApiKey = userApiKey || "AIzaSyCTAd9JG_NOE1zDm72I5-bJ_dpH7fQBIyU"; 
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${activeApiKey}`;
+  
   const payload = {
     systemInstruction: { parts: [{ text: systemPrompt }] },
     contents: [{ parts: [{ text: userPrompt }] }],
@@ -380,13 +432,23 @@ async function callGemini(systemPrompt, userPrompt) {
       const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       if (!response.ok) {
         const err = await response.json().catch(() => ({}));
+        
+        // 400(Bad Request) 이거나 403(Forbidden)일 경우 API 키 문제일 확률이 높음
+        if (response.status === 400 || response.status === 403) {
+          document.getElementById('settings-panel').classList.add('active');
+          throw new Error('API 키가 설정되지 않았거나 올바르지 않습니다. 위 설정 창에 키를 입력해주세요.');
+        }
+        
         if (response.status >= 400 && response.status < 500 && response.status !== 429) throw new Error(err.error?.message || `HTTP ${response.status}`);
         throw new Error('Retry');
       }
       const text = (await response.json()).candidates?.[0]?.content?.parts?.[0]?.text;
       return JSON.parse(text.replace(/```json|```/g, '').trim());
     } catch (e) {
-      if (e.message !== 'Retry' && attempt === delays.length) alert("오류 발생: " + e.message);
+      if (e.message !== 'Retry' && attempt === delays.length) {
+        alert("오류 발생: " + e.message);
+        throw e; // 오류를 던져서 빈 화면 표시
+      }
       if (attempt < delays.length) await new Promise(r => setTimeout(r, delays[attempt]));
     }
   }
@@ -416,18 +478,21 @@ async function generate(type) {
   container.innerHTML = loadingSkeleton();
   
   const prevHint = store[type] ? (store[type].katakana || store[type].verb || store[type].jp || store[type].kanji || store[type].situation) : null;
-  const data = await callGemini(SYSTEM, PROMPTS[type](prevHint));
   
-  if(data) {
-    store[type] = data;
-    if (type === 'verb') store.stats.verbs++;
-    if (type === 'kanji' || type === 'katakana') store.stats.kanji++;
-    store.stats.streak = Math.max(store.stats.streak, 1);
-    save(); updateStats();
-    container.innerHTML = renderContent(type, data);
-  } else {
-    container.innerHTML = `<div class="empty">오류가 발생했습니다. 다시 시도해주세요.</div>`;
+  try {
+    const data = await callGemini(SYSTEM, PROMPTS[type](prevHint));
+    if(data) {
+      store[type] = data;
+      if (type === 'verb') store.stats.verbs++;
+      if (type === 'kanji' || type === 'katakana') store.stats.kanji++;
+      store.stats.streak = Math.max(store.stats.streak, 1);
+      save(); updateStats();
+      container.innerHTML = renderContent(type, data);
+    }
+  } catch (err) {
+    container.innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div>위 설정(⚙️) 창에서 API 키를 먼저 입력해주세요.</div>`;
   }
+  
   btn.disabled = false; btn.textContent = '✦ 다른 내용 뽑기';
 }
 
