@@ -140,7 +140,7 @@
     margin-bottom: 16px; background: var(--paper-2); padding: 8px; border-radius: var(--radius-sm);
   }
 
-  /* ─── Generate button ─── */
+  /* ─── Generate & Nav buttons ─── */
   .gen-btn {
     display: flex; align-items: center; justify-content: center; gap: 8px;
     width: 100%; padding: 16px;
@@ -153,6 +153,13 @@
   .gen-btn:active { transform: scale(0.98); }
   .gen-btn:disabled { background: var(--paper-3); color: var(--ink-muted); box-shadow: none; }
   
+  .nav-btn {
+    background: white; border: 1.5px solid var(--paper-3); padding: 8px 16px; border-radius: 12px;
+    font-size: 14px; font-weight: 700; color: var(--ink); cursor: pointer; transition: all 0.2s;
+  }
+  .nav-btn:active { background: var(--paper-2); }
+  .nav-btn:disabled { opacity: 0.4; cursor: not-allowed; border-color: transparent; background: transparent; }
+
   /* ─── Cards & Hide Text ─── */
   .card {
     background: white; border: 1px solid var(--paper-3);
@@ -165,7 +172,6 @@
     text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px;
   }
 
-  /* 클릭 시 보이는 숨김 텍스트 (발음/해석용) */
   .hide-text {
     background-color: var(--paper-3);
     color: transparent;
@@ -239,12 +245,12 @@
   .bubble .bj { font-size: 20px; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
 
   /* Quiz */
-  .quiz-q-text { font-size: 24px; font-weight: 700; margin-bottom: 24px; line-height: 1.4; }
+  .quiz-q-text { font-size: 22px; font-weight: 700; margin-bottom: 24px; line-height: 1.4; }
   .quiz-opts { display: flex; flex-direction: column; gap: 12px; }
   .opt {
     padding: 16px; border: 2px solid var(--paper-3); border-radius: var(--radius-sm);
     background: white; color: var(--ink); font-size: 18px; font-weight: 700;
-    cursor: pointer; transition: all 0.2s;
+    cursor: pointer; transition: all 0.2s; text-align: center;
   }
   .opt.correct { background: var(--green-soft); border-color: var(--green); color: var(--green); }
   .opt.wrong { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
@@ -272,13 +278,13 @@
   <header>
     <div class="logo">
       <span class="logo-jp">日語デイリー</span>
-      <span class="logo-sub">매일 조금씩 성장하는 일본어</span>
+      <span class="logo-sub">매일 조금씩, 끝까지 멋지게!</span>
     </div>
     <div class="header-info">
-      <span class="streak-badge"><span class="flame">🔥</span><span id="streak-num">0</span>일 연속</span>
+      <span class="streak-badge"><span class="flame">🔥</span><span id="streak-num">0</span>일 연속 학습</span>
       <span class="date-text" id="today-date"></span>
     </div>
-    <button class="settings-btn" onclick="toggleSettings()">⚙️</button>
+    <button class="settings-btn" onclick="toggleSettings()" aria-label="설정">⚙️</button>
   </header>
 
   <!-- Settings Panel -->
@@ -299,8 +305,8 @@
 
   <!-- Stats -->
   <div class="stats">
-    <div class="stat-card"><div class="stat-n" id="stat-verbs">0</div><div class="stat-l">단어/동사</div></div>
-    <div class="stat-card"><div class="stat-n" id="stat-kanji">0</div><div class="stat-l">가타카나/한자</div></div>
+    <div class="stat-card"><div class="stat-n" id="stat-verbs">0</div><div class="stat-l">누적 단어/동사</div></div>
+    <div class="stat-card"><div class="stat-n" id="stat-kanji">0</div><div class="stat-l">누적 가타카나/한자</div></div>
     <div class="stat-card"><div class="stat-n" id="stat-quiz">—</div><div class="stat-l">퀴즈 정답률</div></div>
   </div>
 
@@ -311,39 +317,39 @@
     <button class="tab-btn" onclick="switchTab('sentence', this)">한 문장</button>
     <button class="tab-btn" onclick="switchTab('kanji', this)">기초 한자</button>
     <button class="tab-btn" onclick="switchTab('dialogue', this)">회화</button>
-    <button class="tab-btn" onclick="switchTab('quiz', this)">퀴즈</button>
+    <button class="tab-btn" onclick="switchTab('quiz', this)">🎉 퀴즈</button>
   </div>
 
-  <div class="hint-notice">💡 회색 박스를 터치하면 발음과 해석이 보입니다.</div>
+  <div class="hint-notice">💡 회색 박스를 터치하면 발음과 해석이 짠! 하고 나타납니다.</div>
 
   <!-- Sections -->
   <div id="sec-katakana" class="section visible">
-    <button class="gen-btn" id="btn-katakana" onclick="generate('katakana')">✦ 오늘의 가타카나 뽑기</button>
-    <div id="content-katakana"><div class="empty"><div class="empty-icon">ア</div>버튼을 눌러 시작하세요</div></div>
+    <button class="gen-btn" id="btn-katakana" onclick="generate('katakana')">✦ 오늘의 첫 가타카나 뽑기</button>
+    <div id="content-katakana"><div class="empty"><div class="empty-icon">ア</div>버튼을 눌러 첫 학습을 시작해보세요!</div></div>
   </div>
 
   <div id="sec-verb" class="section">
-    <button class="gen-btn" id="btn-verb" onclick="generate('verb')">✦ 오늘의 동사 뽑기</button>
-    <div id="content-verb"><div class="empty"><div class="empty-icon">動</div>버튼을 눌러 시작하세요</div></div>
+    <button class="gen-btn" id="btn-verb" onclick="generate('verb')">✦ 오늘의 첫 동사 뽑기</button>
+    <div id="content-verb"><div class="empty"><div class="empty-icon">動</div>버튼을 눌러 첫 학습을 시작해보세요!</div></div>
   </div>
 
   <div id="sec-sentence" class="section">
-    <button class="gen-btn" id="btn-sentence" onclick="generate('sentence')">✦ 오늘의 문장 뽑기</button>
-    <div id="content-sentence"><div class="empty"><div class="empty-icon">文</div>버튼을 눌러 시작하세요</div></div>
+    <button class="gen-btn" id="btn-sentence" onclick="generate('sentence')">✦ 오늘의 첫 문장 뽑기</button>
+    <div id="content-sentence"><div class="empty"><div class="empty-icon">文</div>버튼을 눌러 첫 학습을 시작해보세요!</div></div>
   </div>
 
   <div id="sec-kanji" class="section">
-    <button class="gen-btn" id="btn-kanji" onclick="generate('kanji')">✦ 오늘의 한자 뽑기</button>
-    <div id="content-kanji"><div class="empty"><div class="empty-icon">字</div>버튼을 눌러 시작하세요</div></div>
+    <button class="gen-btn" id="btn-kanji" onclick="generate('kanji')">✦ 오늘의 첫 한자 뽑기</button>
+    <div id="content-kanji"><div class="empty"><div class="empty-icon">字</div>버튼을 눌러 첫 학습을 시작해보세요!</div></div>
   </div>
 
   <div id="sec-dialogue" class="section">
-    <button class="gen-btn" id="btn-dialogue" onclick="generate('dialogue')">✦ 오늘의 대화 뽑기</button>
-    <div id="content-dialogue"><div class="empty"><div class="empty-icon">話</div>버튼을 눌러 시작하세요</div></div>
+    <button class="gen-btn" id="btn-dialogue" onclick="generate('dialogue')">✦ 오늘의 첫 대화 뽑기</button>
+    <div id="content-dialogue"><div class="empty"><div class="empty-icon">話</div>버튼을 눌러 첫 학습을 시작해보세요!</div></div>
   </div>
 
   <div id="sec-quiz" class="section">
-    <div id="content-quiz"><div class="empty"><div class="empty-icon">?</div>콘텐츠를 먼저 학습해주세요</div></div>
+    <div id="content-quiz"><div class="empty"><div class="empty-icon">?</div>콘텐츠를 먼저 학습해주세요!</div></div>
   </div>
 
 </div>
@@ -351,21 +357,12 @@
 <script>
 // ── PWA Setup (웹앱 설치 지원) ───────────────────────
 const manifest = {
-  name: "일본어 데일리",
-  short_name: "日語데일리",
-  start_url: ".",
-  display: "standalone",
-  background_color: "#fafaf7",
-  theme_color: "#fafaf7",
-  icons: [{
-    src: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2ZhZmFmNyIvPjx0ZXh0IHk9IjUwJSIgeD0iNTAlIiBmb250LXNpemU9Ijc1IiBmaWxsPSIjYzg0YjMxIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZGlyZWN0aW9uPSJydGwiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIj7ml6U8L3RleHQ+PC9zdmc+",
-    sizes: "192x192",
-    type: "image/svg+xml"
-  }]
+  name: "일본어 데일리", short_name: "日語데일리", start_url: ".", display: "standalone",
+  background_color: "#fafaf7", theme_color: "#fafaf7",
+  icons: [{ src: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2ZhZmFmNyIvPjx0ZXh0IHk9IjUwJSIgeD0iNTAlIiBmb250LXNpemU9Ijc1IiBmaWxsPSIjYzg0YjMxIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZGlyZWN0aW9uPSJydGwiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIj7ml6U8L3RleHQ+PC9zdmc+", sizes: "192x192", type: "image/svg+xml" }]
 };
 const manifestDataUri = "data:application/json;charset=utf-8," + encodeURIComponent(JSON.stringify(manifest));
 document.head.insertAdjacentHTML('beforeend', `<link rel="manifest" href="${manifestDataUri}">`);
-// ───────────────────────────────────────────────────────
 
 // ── User API Key Management ────────────────────────────
 let userApiKey = localStorage.getItem('jp-daily-apikey') || "";
@@ -383,17 +380,44 @@ function saveApiKey() {
   document.getElementById('settings-panel').classList.remove('active');
   alert('API 키가 성공적으로 저장되었습니다!\n이제 생성을 시작해 보세요.');
 }
-// ───────────────────────────────────────────────────────
 
-const store = {
-  katakana: null, verb: null, sentence: null, kanji: null, dialogue: null,
-  stats: { verbs: 0, kanji: 0, quizTotal: 0, quizCorrect: 0, streak: 0 },
+// ── Store & State V3 (배열 형태의 히스토리 관리) ───────────
+let store = {
+  katakana: [], verb: [], sentence: [], kanji: [], dialogue: [],
+  stats: { verbs: 0, kanji: 0, quizTotal: 0, quizCorrect: 0, streak: 0, lastDate: null },
   quizState: { questions: [], index: 0, answered: false }
 };
 
-// Load state
-try { const saved = localStorage.getItem('jp-daily-v2'); if (saved) Object.assign(store, JSON.parse(saved)); } catch(e) {}
-function save() { try { localStorage.setItem('jp-daily-v2', JSON.stringify(store)); } catch(e) {} }
+// 마이그레이션 및 로드
+try {
+  const savedV3 = localStorage.getItem('jp-daily-v3');
+  if (savedV3) {
+    store = JSON.parse(savedV3);
+  } else {
+    // V2 구조에서 데이터 가져오기 (이전 데이터 보존)
+    const savedV2 = localStorage.getItem('jp-daily-v2');
+    if (savedV2) {
+      const old = JSON.parse(savedV2);
+      if (old.katakana) store.katakana.push(old.katakana);
+      if (old.verb) store.verb.push(old.verb);
+      if (old.sentence) store.sentence.push(old.sentence);
+      if (old.kanji) store.kanji.push(old.kanji);
+      if (old.dialogue) store.dialogue.push(old.dialogue);
+      store.stats = old.stats || store.stats;
+    }
+  }
+} catch(e) {}
+
+function save() { try { localStorage.setItem('jp-daily-v3', JSON.stringify(store)); } catch(e) {} }
+
+// 각 탭별로 현재 보고 있는 아이템의 위치(인덱스)
+const uiState = {
+  katakana: Math.max(0, store.katakana.length - 1),
+  verb: Math.max(0, store.verb.length - 1),
+  sentence: Math.max(0, store.sentence.length - 1),
+  kanji: Math.max(0, store.kanji.length - 1),
+  dialogue: Math.max(0, store.dialogue.length - 1)
+};
 
 // Init UI
 document.getElementById('today-date').textContent = new Date().toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' });
@@ -404,7 +428,10 @@ function switchTab(id, btn) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('sec-' + id).classList.add('visible');
   btn.classList.add('active');
-  if (id === 'quiz') renderQuizSection();
+  
+  if (id === 'quiz') {
+    renderQuizSection();
+  }
 }
 
 function updateStats() {
@@ -414,42 +441,61 @@ function updateStats() {
   document.getElementById('streak-num').textContent = store.stats.streak;
 }
 
+function checkAndUpdateStreak() {
+  const todayStr = new Date().toDateString();
+  if (store.stats.lastDate !== todayStr) {
+    if (store.stats.lastDate) {
+      const last = new Date(store.stats.lastDate);
+      const diffTime = Math.abs(new Date() - last);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+      if (diffDays === 1) store.stats.streak++;
+      else store.stats.streak = 1;
+    } else {
+      store.stats.streak = 1;
+    }
+    store.stats.lastDate = todayStr;
+  }
+}
+
 // ── API Call ───────────────────────────────────────────
 async function callGemini(systemPrompt, userPrompt) {
-  // 사용자가 입력한 API 키가 있다면 사용, 없다면 빈 문자열(Canvas 미리보기 환경 지원)
-  const activeApiKey = userApiKey || "AIzaSyCTAd9JG_NOE1zDm72I5-bJ_dpH7fQBIyU"; 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${activeApiKey}`;
+  if (!userApiKey) {
+    document.getElementById('settings-panel').classList.add('active');
+    throw new Error('API 키가 입력되지 않았습니다. 위 설정(⚙️) 창을 먼저 확인해주세요.');
+  }
+  
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${userApiKey}`;
   
   const payload = {
     systemInstruction: { parts: [{ text: systemPrompt }] },
     contents: [{ parts: [{ text: userPrompt }] }],
     generationConfig: { responseMimeType: "application/json", maxOutputTokens: 800 }
   };
-  const delays = [500, 1500]; // 빠른 재시도
   
-  for (let attempt = 0; attempt <= delays.length; attempt++) {
+  const maxRetries = 1; // 과부하 에러 시 1번 더 자동 재시도
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       if (!response.ok) {
         const err = await response.json().catch(() => ({}));
-        
-        // 400(Bad Request) 이거나 403(Forbidden)일 경우 API 키 문제일 확률이 높음
         if (response.status === 400 || response.status === 403) {
           document.getElementById('settings-panel').classList.add('active');
-          throw new Error('API 키가 설정되지 않았거나 올바르지 않습니다. 위 설정 창에 키를 입력해주세요.');
+          throw new Error('API 키가 올바르지 않거나 권한이 없습니다. 구글 AI 스튜디오에서 새로 키를 발급받아 다시 입력해주세요.');
         }
-        
-        if (response.status >= 400 && response.status < 500 && response.status !== 429) throw new Error(err.error?.message || `HTTP ${response.status}`);
-        throw new Error('Retry');
+        if (response.status === 429) {
+          if (attempt < maxRetries) {
+            await new Promise(r => setTimeout(r, 3000)); // 3초 숨 고르기 후 재요청
+            continue;
+          }
+          throw new Error('무료 생성 한도를 초과했습니다.\n약 10초 뒤에 다시 버튼을 눌러주세요.');
+        }
+        throw new Error(err.error?.message || `HTTP 에러: ${response.status}`);
       }
       const text = (await response.json()).candidates?.[0]?.content?.parts?.[0]?.text;
       return JSON.parse(text.replace(/```json|```/g, '').trim());
     } catch (e) {
-      if (e.message !== 'Retry' && attempt === delays.length) {
-        alert("오류 발생: " + e.message);
-        throw e; // 오류를 던져서 빈 화면 표시
-      }
-      if (attempt < delays.length) await new Promise(r => setTimeout(r, delays[attempt]));
+      if (e.message.includes('한도 초과') && attempt < maxRetries) continue;
+      throw e; 
     }
   }
 }
@@ -458,42 +504,108 @@ async function callGemini(systemPrompt, userPrompt) {
 const SYSTEM = "당신은 일본어 초보자 전문 강사입니다. 반드시 순수 JSON만 매우 간결하게 반환하세요.";
 
 const PROMPTS = {
-  katakana: (p) => `오늘 배울 가타카나 1글자를 골라주세요. ${p?`이전: ${p} 제외.`:''}
-{"katakana":"글자","romaji":"발음","pronunciation":"한국어 발음(예: 아, 카)","tip":"모양 외우는 짧은 팁","words":[{"word":"단어","pronunciation":"한국어 발음","meaning":"뜻"}]}`,
-  verb: (p) => `기초 동사 1개를 골라주세요. ${p?`이전: ${p} 제외.`:''}
+  katakana: (p) => `오늘 배울 가타카나 1글자를 골라주세요. ${p?`이전에 배운 내용(${p})은 피해서 완전히 새로운 걸로 골라주세요.`:''}
+{"katakana":"글자","romaji":"발음","pronunciation":"한국어 발음(예: 아, 카)","tip":"모양 외우는 재미있는 팁","words":[{"word":"단어","pronunciation":"한국어 발음","meaning":"뜻"}]}`,
+  verb: (p) => `기초 동사 1개를 골라주세요. ${p?`이전에 배운 내용(${p})은 피해서 완전히 새로운 걸로 골라주세요.`:''}
 {"verb":"동사","reading":"읽기","pronunciation":"한국어 발음","meaning":"뜻","type":"그룹","conjugations":{"ます형":"...","て형":"...","ない형":"...","た형":"..."},"example":{"jp":"짧은 예문","pronunciation":"한국어 발음","kr":"뜻"}}`,
-  sentence: (p) => `초보자용 일상 문장 1개. ${p?`이전: ${p} 제외.`:''}
-{"jp":"문장","reading":"읽기","pronunciation":"한국어 발음","kr":"번역","grammar_point":"짧은 문법 설명"}`,
-  kanji: (p) => `JLPT N5 기초 한자 1개. ${p?`이전: ${p} 제외.`:''}
+  sentence: (p) => `초보자용 일상 문장 1개. ${p?`이전에 배운 내용(${p})은 피해서 완전히 새로운 걸로 골라주세요.`:''}
+{"jp":"문장","reading":"읽기","pronunciation":"한국어 발음","kr":"번역","grammar_point":"알기 쉬운 문법 설명"}`,
+  kanji: (p) => `JLPT N5 기초 한자 1개. ${p?`이전에 배운 내용(${p})은 피해서 완전히 새로운 걸로 골라주세요.`:''}
 {"kanji":"한자","onyomi":"음독","kunyomi":"훈독","pronunciation":"한국어 발음(음/훈독 종합)","meaning":"뜻","words":[{"word":"단어","reading":"읽기","pronunciation":"한국어 발음","meaning":"뜻"}]}`,
   dialogue: (p) => `초보자용 2-3턴 짧은 대화.
 {"situation":"상황","lines":[{"speaker":"A/B","jp":"문장","reading":"읽기","pronunciation":"한국어 발음","kr":"뜻"}]}`
 };
 
-// ── Generate ──────────────────────────────────────────
+// ── 데이터 직접 불러오기 (미리 불러오기 제거됨) ────────────────
+async function doFetch(type) {
+  const recentArr = store[type].slice(-10);
+  const recent = recentArr.map(x => x.katakana || x.verb || x.jp || x.kanji || x.situation).join(', ');
+  return await callGemini(SYSTEM, PROMPTS[type](recent));
+}
+
+// ── Generate & Render History ─────────────────────────
 async function generate(type) {
   const btn = document.getElementById('btn-' + type);
   const container = document.getElementById('content-' + type);
-  btn.disabled = true; btn.textContent = '생성 중...';
-  container.innerHTML = loadingSkeleton();
   
-  const prevHint = store[type] ? (store[type].katakana || store[type].verb || store[type].jp || store[type].kanji || store[type].situation) : null;
+  btn.disabled = true; 
+  const originalText = btn.innerHTML;
   
-  try {
-    const data = await callGemini(SYSTEM, PROMPTS[type](prevHint));
-    if(data) {
-      store[type] = data;
-      if (type === 'verb') store.stats.verbs++;
-      if (type === 'kanji' || type === 'katakana') store.stats.kanji++;
-      store.stats.streak = Math.max(store.stats.streak, 1);
-      save(); updateStats();
-      container.innerHTML = renderContent(type, data);
-    }
-  } catch (err) {
-    container.innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div>위 설정(⚙️) 창에서 API 키를 먼저 입력해주세요.</div>`;
+  // 기존 내용을 임시 저장해둡니다 (에러가 나서 화면이 날아가는 것을 방지)
+  const currentHtml = container.innerHTML;
+  
+  // 아예 첫 학습일 때만 스켈레톤(뼈대) 로딩을 보여줍니다.
+  if (store[type].length === 0) {
+    btn.textContent = 'AI가 일본어를 창작하고 있어요... ⏳';
+    container.innerHTML = loadingSkeleton();
+  } else {
+    btn.textContent = '새로운 내용을 꺼내오는 중... ⏳';
   }
   
-  btn.disabled = false; btn.textContent = '✦ 다른 내용 뽑기';
+  try {
+    // 미리 불러오지 않고 버튼을 누를 때만 정직하게 요청합니다 (과부하 원천 차단)
+    let data = await doFetch(type);
+    
+    if(data) {
+      store[type].push(data);
+      uiState[type] = store[type].length - 1; 
+      
+      if (type === 'verb') store.stats.verbs++;
+      if (type === 'kanji' || type === 'katakana') store.stats.kanji++;
+      
+      checkAndUpdateStreak();
+      save(); updateStats();
+      renderSection(type);
+    }
+  } catch (err) {
+    // 에러 발생 시, 기존 화면을 그대로 유지하고 팝업으로만 살짝 알려줍니다.
+    if (store[type].length > 0) {
+      container.innerHTML = currentHtml; // 화면 복구
+      alert("⚠️ " + err.message);
+      btn.innerHTML = originalText;      // 버튼 복구
+    } else {
+      container.innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><span style="font-size:14px;color:var(--accent);">${err.message.replace(/\n/g, '<br>')}</span></div>`;
+      btn.innerHTML = originalText;
+    }
+  } finally {
+    btn.disabled = false; 
+  }
+}
+
+function navItem(type, dir) {
+  uiState[type] += dir;
+  renderSection(type);
+}
+
+function renderSection(type) {
+  const container = document.getElementById('content-' + type);
+  const items = store[type];
+  const btn = document.getElementById('btn-' + type);
+  
+  if (!items || items.length === 0) {
+    container.innerHTML = `<div class="empty"><div class="empty-icon">🌱</div>아직 학습한 내용이 없어요.<br>위 버튼을 눌러 첫 학습을 시작해보세요!</div>`;
+    return;
+  }
+
+  // 인덱스 범위 초과 방지
+  if (uiState[type] >= items.length) uiState[type] = items.length - 1;
+  if (uiState[type] < 0) uiState[type] = 0;
+
+  const d = items[uiState[type]];
+  
+  // 네비게이션 컨트롤 렌더링 (이전 학습기록 탐색)
+  const navHtml = `
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; background:var(--paper-2); padding:10px 14px; border-radius:var(--radius-sm);">
+      <button class="nav-btn" onclick="navItem('${type}', -1)" ${uiState[type] === 0 ? 'disabled' : ''}>◀ 이전 복습</button>
+      <span style="font-size:14px; font-weight:700; color:var(--ink-muted);">${uiState[type] + 1} / ${items.length}</span>
+      <button class="nav-btn" onclick="navItem('${type}', 1)" ${uiState[type] === items.length - 1 ? 'disabled' : ''}>다음 학습 ▶</button>
+    </div>
+  `;
+
+  container.innerHTML = navHtml + renderContent(type, d);
+  
+  // 추가 학습을 독려하는 역동적인 버튼 문구
+  btn.innerHTML = `✦ 새로운 내용 더 뽑기 <span style="font-size:12px; font-weight:normal; background:rgba(255,255,255,0.25); padding:3px 8px; border-radius:12px; margin-left:6px;">누적 ${items.length}개</span>`;
 }
 
 function loadingSkeleton() {
@@ -513,11 +625,15 @@ function makeHideable(text, isLarge = false) {
   return `<span class="hide-text ${isLarge ? 'jp' : ''}" onclick="this.classList.toggle('active')">${text}</span>`;
 }
 
-// ── Renderers ─────────────────────────────────────────
+function escAttr(s) {
+  return String(s).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+// ── Render Content Templates ────────────────────────────
 function renderContent(type, d) {
   if(type === 'katakana') return `
     <div class="card">
-      <div class="card-label">오늘의 가타카나</div>
+      <div class="card-label">가타카나 학습</div>
       <div class="hero-char">${d.katakana}</div>
       <div class="hero-reading">${makeHideable(d.romaji, true)}</div>
       <div class="pronunciation">[ ${d.pronunciation} ]</div>
@@ -537,7 +653,7 @@ function renderContent(type, d) {
 
   if(type === 'verb') return `
     <div class="card">
-      <div class="card-label">오늘의 동사</div>
+      <div class="card-label">기초 동사 학습</div>
       <div class="hero-char">${d.verb}</div>
       <div class="hero-reading">${makeHideable(d.reading, true)}</div>
       <div class="pronunciation">[ ${d.pronunciation} ]</div>
@@ -545,13 +661,13 @@ function renderContent(type, d) {
       <span class="tag tag-blue">${d.type}</span>
     </div>
     <div class="card">
-      <div class="card-label">활용표</div>
+      <div class="card-label">동사 활용표</div>
       <div class="grid-2col">
         ${Object.entries(d.conjugations||{}).map(([k,v]) => `<div class="grid-item"><div style="font-size:12px;color:var(--ink-muted);">${k}</div><div class="jp" style="font-size:18px;font-weight:700;margin-top:4px;">${makeHideable(v, true)}</div></div>`).join('')}
       </div>
     </div>
     <div class="card">
-      <div class="card-label">예문</div>
+      <div class="card-label">생활 예문</div>
       <div class="sentence-jp">${d.example.jp}</div>
       <div class="pronunciation">[ ${d.example.pronunciation} ]</div>
       <div>${makeHideable(d.example.kr)}</div>
@@ -567,14 +683,14 @@ function renderContent(type, d) {
       <div style="font-size:18px;font-weight:700;">${makeHideable(d.kr)}</div>
     </div>
     <div class="card">
-      <div class="card-label">문법 포인트</div>
+      <div class="card-label">핵심 문법 포인트</div>
       <div class="point-box">${d.grammar_point}</div>
     </div>
     <div class="action-row"><button class="sec-btn" onclick="speak('${d.jp}')">🔊 발음 듣기</button></div>`;
 
   if(type === 'kanji') return `
     <div class="card">
-      <div class="card-label">오늘의 한자</div>
+      <div class="card-label">기초 한자 학습</div>
       <div class="hero-char">${d.kanji}</div>
       <div class="pronunciation" style="margin-bottom:8px;">[ ${d.pronunciation} ]</div>
       <div class="hero-meaning">${makeHideable(d.meaning)}</div>
@@ -611,50 +727,163 @@ function renderContent(type, d) {
     </div>`;
 }
 
-// ── Quiz ──────────────────────────────────────────────
+// ── Quiz (전체 누적 기록을 바탕으로 다양하게 출제) ────────
 function renderQuizSection() {
   const container = document.getElementById('content-quiz');
-  if (!store.verb && !store.sentence && !store.kanji && !store.katakana) {
-    container.innerHTML = `<div class="empty"><div class="empty-icon">?</div>학습을 먼저 진행해주세요</div>`; return;
+  const hasContent = store.verb.length || store.sentence.length || store.kanji.length || store.katakana.length;
+  
+  if (!hasContent) {
+    container.innerHTML = `<div class="empty"><div class="empty-icon">?</div>학습을 먼저 하나 이상 진행해주세요!</div>`; return;
   }
-  store.quizState.questions = buildQuestions(); store.quizState.index = 0; store.quizState.answered = false;
+  
+  // 퀴즈 탭에 들어올 때마다 새로운 문제 10개를 무작위로 구성합니다.
+  store.quizState.questions = buildQuestions(); 
+  store.quizState.index = 0; 
+  store.quizState.answered = false;
   showQuestion(container);
 }
 
 function buildQuestions() {
-  const qs = [], d = store;
-  if(d.katakana) qs.push({ q:`가타카나 "${d.katakana.katakana}" 의 발음은?`, opts: shuffle([d.katakana.romaji, 'a', 'ka', 'shi']), ans: d.katakana.romaji });
-  if(d.verb) qs.push({ q:`"${d.verb.meaning}" 을(를) 뜻하는 동사는?`, opts: shuffle([d.verb.verb, 'する', 'くる', 'いく']), ans: d.verb.verb });
-  if(d.sentence) qs.push({ q:`다음 문장의 뜻은?\n${d.sentence.jp}`, opts: shuffle([d.sentence.kr, '안녕하세요', '감사합니다', '맛있습니다']), ans: d.sentence.kr });
-  if(d.kanji) qs.push({ q:`한자 "${d.kanji.kanji}" 의 뜻은?`, opts: shuffle([d.kanji.meaning, '하늘', '물', '불']), ans: d.kanji.meaning });
-  return shuffle(qs);
+  const qs = [];
+  
+  // 지금까지 배운 모든 항목에서 질문을 생성합니다.
+  store.katakana.forEach(d => {
+    qs.push({ q:`가타카나 "${d.katakana}" 의 올바른 발음은 무엇일까요?`, ans: d.romaji, type: 'kata_read' });
+  });
+  store.verb.forEach(d => {
+    qs.push({ q:`"${d.meaning}" 을(를) 뜻하는 일본어 동사는 무엇일까요?`, ans: d.verb, type: 'verb_mean' });
+    qs.push({ q:`동사 "${d.verb}" 은(는) 무슨 뜻일까요?`, ans: d.meaning, type: 'verb_read' });
+  });
+  store.sentence.forEach(d => {
+    qs.push({ q:`다음 문장의 올바른 뜻을 골라주세요!\n\n${d.jp}`, ans: d.kr, type: 'sent_trans' });
+  });
+  store.kanji.forEach(d => {
+    qs.push({ q:`한자 "${d.kanji}" 의 뜻은 무엇일까요?`, ans: d.meaning, type: 'kanji_mean' });
+    if(d.words && d.words.length > 0) {
+      qs.push({ q:`단어 "${d.words[0].word}" 의 뜻은 무엇일까요?`, ans: d.words[0].meaning, type: 'kanji_word' });
+    }
+  });
+
+  // 오답 보기(선택지)를 생성하기 위해 모든 정답 데이터를 모아둡니다.
+  const poolVerbMean = store.verb.map(v => v.meaning);
+  const poolVerbJp = store.verb.map(v => v.verb);
+  const poolKanjiMean = store.kanji.map(k => k.meaning).concat((store.kanji.map(k => k.words?.[0]?.meaning)).filter(Boolean));
+  const poolKata = store.katakana.map(k => k.romaji);
+  const poolSent = store.sentence.map(s => s.kr);
+
+  // 기본 오답 풀 (학습 데이터가 적을 때 정답이 너무 티나지 않도록 방지하는 가짜 보기들)
+  const fallback = {
+    verb_read: ['맛있게 먹다', '빨리 가다', '열심히 하다', '자세히 보다', '푹 자다', '친구를 만나다', '책을 읽다'],
+    verb_mean: ['する', 'くる', 'いく', 'たべる', 'みる', 'のむ', 'かく'],
+    kanji_mean: ['맑은 하늘', '넓은 땅', '뜨거운 불', '차가운 물', '푸른 나무', '좋은 사람', '밝은 달', '큰 산'],
+    sent_trans: ['안녕하세요! 반갑습니다.', '이것은 얼마입니까?', '정말 감사합니다.', '잘 먹겠습니다!', '어디에 있습니까?', '다시 한번 말해주세요.'],
+    kata_read: ['a', 'ka', 'sa', 'ta', 'na', 'ha', 'ma', 'ya', 'ra', 'wa', '아', '카', '사', '타', '나']
+  };
+
+  // 각 질문에 적절한 오답을 섞어줍니다.
+  qs.forEach(q => {
+    let pool = [];
+    if (q.type === 'verb_read') pool = [...poolVerbMean, ...fallback.verb_read];
+    else if (q.type === 'verb_mean') pool = [...poolVerbJp, ...fallback.verb_mean];
+    else if (q.type.includes('kanji')) pool = [...poolKanjiMean, ...fallback.kanji_mean];
+    else if (q.type === 'sent_trans') pool = [...poolSent, ...fallback.sent_trans];
+    else if (q.type === 'kata_read') pool = [...poolKata, ...fallback.kata_read];
+    
+    q.opts = generateOptions(q.ans, pool);
+  });
+
+  // 질문을 무작위로 섞은 뒤 넉넉하게 최대 30문제까지 뽑습니다. (기존 10문제에서 대폭 증가)
+  return shuffle(qs).slice(0, 30);
 }
 
-function shuffle(arr) { return [...new Set([...arr].sort(() => Math.random() - 0.5))].slice(0, 4); }
+function generateOptions(ans, pool) {
+  let options = new Set([ans]);
+  const shuffledPool = shuffle(pool);
+  
+  for(let i=0; i<shuffledPool.length; i++) {
+    if (options.size >= 4) break;
+    options.add(shuffledPool[i]);
+  }
+  
+  // 보기가 부족할 경우를 대비한 안전 장치
+  let fallbackIdx = 1;
+  while(options.size < 4) {
+    options.add('다른 뜻 보기 ' + fallbackIdx++);
+  }
+  
+  // 배열로 변환한 뒤 정답의 위치를 완벽하게 무작위로 섞기
+  return shuffle(Array.from(options));
+}
+
+function shuffle(arr) { 
+  // 편향되지 않은 완벽한 무작위 섞기 알고리즘 (피셔-예이츠 셔플)
+  const result = [...arr];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
 
 function showQuestion(container) {
-  const q = store.quizState.questions[store.quizState.index % store.quizState.questions.length];
-  if(!q) return; store.quizState.answered = false;
+  // 퀴즈가 끝났을 때
+  if(store.quizState.index >= store.quizState.questions.length) {
+    container.innerHTML = `
+      <div class="card" style="text-align:center; padding: 40px 20px;">
+        <div style="font-size:56px; margin-bottom:16px;">🎉</div>
+        <div style="font-size:24px; font-weight:700; margin-bottom:12px; color:var(--ink);">퀴즈 완료!</div>
+        <div style="color:var(--ink-muted); margin-bottom:32px; font-size:16px;">정말 훌륭해요! 꾸준히 학습하는 모습이 아주 멋집니다.</div>
+        <button class="sec-btn" style="width:100%; padding:16px; background:var(--blue-soft); color:var(--blue); border:none; font-size:16px;" onclick="renderQuizSection()">🔄 새로운 퀴즈 다시 풀기</button>
+      </div>
+    `;
+    return;
+  }
+
+  const q = store.quizState.questions[store.quizState.index];
+  store.quizState.answered = false;
+  
   container.innerHTML = `
     <div class="card">
+      <div style="font-size:14px; color:var(--ink-muted); font-family:monospace; margin-bottom:16px; font-weight:700;">도전 문제 ${store.quizState.index + 1} / ${store.quizState.questions.length}</div>
       <div class="quiz-q-text jp">${q.q.replace(/\n/g, '<br>')}</div>
       <div class="quiz-opts">
-        ${q.opts.map(o => `<button class="opt" onclick="answerQuiz(this, '${o}', '${q.ans}')">${o}</button>`).join('')}
+        ${q.opts.map(o => `<button class="opt" onclick="answerQuiz(this, '${escAttr(o)}', '${escAttr(q.ans)}')">${o}</button>`).join('')}
       </div>
-      <button class="sec-btn" id="btn-next" style="display:none; width:100%; margin-top:20px;" onclick="nextQuestion()">다음 문제 →</button>
+      <div id="quiz-feedback" style="display:none; margin-top:20px; padding:16px; border-radius:12px; font-weight:700; font-size:16px;"></div>
+      <button class="sec-btn" id="btn-next" style="display:none; width:100%; padding:16px; margin-top:20px; background:var(--ink); color:white; font-size:16px;" onclick="nextQuestion()">다음 문제로 넘어가기 →</button>
     </div>`;
 }
 
 function answerQuiz(btn, chosen, ans) {
   if (store.quizState.answered) return;
-  store.quizState.answered = true; store.stats.quizTotal++;
-  if (chosen === ans) { store.stats.quizCorrect++; btn.classList.add('correct'); }
-  else { btn.classList.add('wrong'); document.querySelectorAll('.opt').forEach(b => { if(b.textContent===ans) b.classList.add('correct'); }); }
+  store.quizState.answered = true; 
+  store.stats.quizTotal++;
+  
+  const feedback = document.getElementById('quiz-feedback');
+  feedback.style.display = 'block';
+
+  if (chosen === ans) { 
+    store.stats.quizCorrect++; 
+    btn.classList.add('correct'); 
+    feedback.style.backgroundColor = 'var(--green-soft)';
+    feedback.style.color = 'var(--green)';
+    feedback.innerHTML = '✨ 정답입니다! 아주 잘하셨어요!';
+  } else { 
+    btn.classList.add('wrong'); 
+    document.querySelectorAll('.opt').forEach(b => { if(b.textContent===ans) b.classList.add('correct'); }); 
+    feedback.style.backgroundColor = 'var(--accent-soft)';
+    feedback.style.color = 'var(--accent)';
+    feedback.innerHTML = `앗, 아쉽네요! 정답은 <b>[ ${ans} ]</b> 입니다. 다음엔 맞힐 수 있을 거예요!`;
+  }
+  
   save(); updateStats();
   document.getElementById('btn-next').style.display = 'block';
 }
 
-function nextQuestion() { store.quizState.index++; showQuestion(document.getElementById('content-quiz')); }
+function nextQuestion() { 
+  store.quizState.index++; 
+  showQuestion(document.getElementById('content-quiz')); 
+}
 
 function speak(text) {
   if (!('speechSynthesis' in window)) return;
@@ -663,10 +892,13 @@ function speak(text) {
   window.speechSynthesis.speak(u);
 }
 
-// Restore UI
+// ── Restore UI on load ──────────────────────────────────
 ['katakana','verb','sentence','kanji','dialogue'].forEach(t => {
-  if (store[t]) { document.getElementById('content-' + t).innerHTML = renderContent(t, store[t]); document.getElementById('btn-' + t).textContent = '✦ 다른 내용 뽑기'; }
+  if (store[t] && store[t].length > 0) { 
+    renderSection(t); 
+  }
 });
+
 </script>
 </body>
 </html>
